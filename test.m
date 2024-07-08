@@ -1,8 +1,6 @@
 // Code daken from https://learnxinyminutes.com/docs/objective-c/ //
 // Single-line comments start with //
 
-// This is a really long comment that will go on for awhile to test an issue someone reported with iOS VoiceOver using the GitHub app. I need to make it, like, excruciatingly long so as to really get in there and test something that really stresses the system we set up. To that point, here's another sentence to really get the column count up. //
-
 /*
 Multi-line comments look like this
 */
