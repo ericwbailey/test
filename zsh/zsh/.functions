@@ -20,10 +20,7 @@ function ol() {
 function httpserver() {
   local port="${1:-8000}";
   sleep 1 && open "http://localhost:${port}/" &
-  # Set the default Content-Type to `text/plain` instead of
-  # `application/octet-stream`, and serve everything as UTF-8 (although not
-  # technically correct, this doesn't break anything for binary files)
-  python -c $'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port";
+  python3 -m http.server "$port"
 }
 
 
@@ -98,6 +95,10 @@ hostinfo() {
 # https://github.com/nvm-sh/nvm#calling-nvm-use-automatically-in-a-directory-with-a-nvmrc-file
 autoload -U add-zsh-hook
 load-nvmrc() {
+  # Only run if nvm is already loaded
+  if ! type nvm > /dev/null 2>&1; then
+    return
+  fi
   local node_version="$(nvm version)"
   local nvmrc_path="$(nvm_find_nvmrc)"
 
@@ -115,4 +116,3 @@ load-nvmrc() {
   fi
 }
 add-zsh-hook chpwd load-nvmrc
-load-nvmrc

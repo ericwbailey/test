@@ -29,7 +29,7 @@ alias fonts="cd ~/FontExplorer\ X"
 alias htdocs="cd /Applications/XAMPP/xamppfiles/htdocs/"
 alias lib="cd ~/Library"
 alias library="cd ~/Library"
-alias music="cd ~/Music"
+alias cdmusic="cd ~/Music"
 alias pics="cd ~/Pictures"
 alias pub="cd ~/Public"
 alias sysfonts="cd ~/Library/Fonts"
@@ -77,14 +77,9 @@ alias grep="grep --color=auto" # Colors grep output
 
 ## Listing
 
-# Detect which `ls` flavor is in use
-if ls --color > /dev/null 2>&1; then # GNU `ls`
-  colorflag="--color"
-else # OS X `ls`
-  colorflag="-G"
-fi
+# GNU coreutils (prepended to $PATH via .path) always provides --color
+colorflag="--color"
 
-alias ls="ls -aF ${colorflag}"                             # Include directory entries whose names begin with "."
 alias la="exa -laF --header --group --git"                  # Include directory entries whose names begin with ".", list in long format (ownership, date/time, etc.)
 alias lx="ls -lXB ${colorflag}"                            # Sort by extension
 alias lext="ls -lXB ${colorflag}"
@@ -136,7 +131,7 @@ alias reload="exec $SHELL -l" # Reloads the shell (i.e. invoke as a login shell)
 ## Pinging
 alias ping="ping -c 5"    # Pings a resource 5 times
 alias ping10="ping -c 10" # Pings a resource 10 times
-alias ping25="ping -c 10" # Pings a resource 25 times
+alias ping25="ping -c 25" # Pings a resource 25 times
 
 
 # Applications ################################################################
