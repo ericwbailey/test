@@ -1,36 +1,41 @@
 # Imports #####################################################################
 
 ## Autoloads
-autoload -Uz compinit && compinit     # Initialize zsh completion
-autoload bashcompinit && bashcompinit # Load bashcompinit for some old bash completions
+autoload -Uz compinit
+if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
+  compinit
+else
+  compinit -C
+fi
 
 ## My stuff
 source ~/.zsh/.path
 source ~/.zsh/.aliases
 source ~/.zsh/.functions
 
-## Antigen
-source ~/.zsh/antigen.zsh
+## zinit
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
+[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+source "${ZINIT_HOME}/zinit.zsh"
 
-antigen bundle colored-man-pages
-antigen bundle command-not-found
-antigen bundle dircycle
-antigen bundle git
-antigen bundle heroku
-antigen bundle nocttuam/autodotenv
-antigen bundle npm
-antigen bundle sudo
-antigen bundle Tarrasch/zsh-command-not-found
-antigen bundle zdharma/fast-syntax-highlighting
-antigen bundle zpm-zsh/colorize
-antigen bundle zpm-zsh/colors
-antigen bundle zsh-autosuggestions
-antigen bundle zsh-users/zsh-completions
-antigen bundle zsh-users/zsh-history-substring-search
+zinit wait lucid light-mode for \
+  atinit"zicompinit; zicdreplay" \
+    zdharma-continuum/fast-syntax-highlighting \
+  atload"_zsh_autosuggest_start" \
+    zsh-users/zsh-autosuggestions \
+  blockf atpull'zinit creinstall -q ' \
+    zsh-users/zsh-completions
 
-antigen apply
-
-plugins=(history-substring-search)
+zinit wait lucid light-mode for \
+  OMZP::colored-man-pages \
+  OMZP::dircycle \
+  OMZP::git \
+  OMZP::sudo \
+  nocttuam/autodotenv \
+  zpm-zsh/colorize \
+  zpm-zsh/colors \
+  zsh-users/zsh-history-substring-search
 
 # Configuration ###############################################################
 
@@ -50,15 +55,14 @@ zstyle ':completion:*' expand prefix suffix
 
 # Prompt ######################################################################
 
-parse_git_branch() {
-  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/on %F{blue}\1%f/'
-}
-
+autoload -Uz vcs_info
+precmd() { vcs_info }
+zstyle ':vcs_info:git:*' formats 'on %F{blue}%b%f'
 setopt PROMPT_SUBST
-export PROMPT="
-%F{cyan}%n%f in %F{magenta}%M%f $(parse_git_branch)
+export PROMPT='
+%F{cyan}%n%f in %F{magenta}%M%f ${vcs_info_msg_0_}
 %F{yellow}%~%f
-: "
+: '
 
 
 # History #####################################################################
@@ -83,8 +87,30 @@ bindkey "^[[A" history-beginning-search-backward-end
 bindkey "^[[B" history-beginning-search-forward-end
 
 
-eval "$(rbenv init -)"
+# Lazy-load rbenv
+rbenv() {
+  unset -f rbenv ruby gem bundle irb
+  eval "$(command rbenv init -)"
+  rbenv "$@"
+}
+ruby()   { rbenv; command ruby   "$@"; }
+gem()    { rbenv; command gem    "$@"; }
+bundle() { rbenv; command bundle "$@"; }
+irb()    { rbenv; command irb    "$@"; }
 
+# Lazy-load nvm
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+nvm() {
+  unset -f nvm node npm npx
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  nvm "$@"
+}
+node() { nvm; command node "$@"; }
+npm()  { nvm; command npm  "$@"; }
+npx()  { nvm; command npx  "$@"; }
+
+# fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# autojump
+[ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
